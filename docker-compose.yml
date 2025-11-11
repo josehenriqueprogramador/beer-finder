@@ -4,7 +4,6 @@ networks:
   beerfinder_network:
 
 volumes:
-  db_data:
   PostgreData:
 
 services:
@@ -20,14 +19,7 @@ services:
     networks:
       - beerfinder_network
     depends_on:
-      - postgresql  # agora depende do Postgres
-    environment:
-      DB_CONNECTION=pgsql
-      DB_HOST=postgresql
-      DB_PORT=5432
-      DB_DATABASE=beerfinder
-      DB_USERNAME=sail
-      DB_PASSWORD=password
+      - postgresql
 
   postgresql:
     image: ankane/pgvector:latest
@@ -43,4 +35,3 @@ services:
       - PostgreData:/var/lib/postgresql/data
     networks:
       - beerfinder_network
-
