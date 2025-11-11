@@ -20,6 +20,7 @@ services:
       - beerfinder_network
     depends_on:
       - postgresql
+    command: ["/usr/bin/supervisord", "-c", "/var/www/html/supervisord.conf"]
 
   postgresql:
     image: ankane/pgvector:latest
