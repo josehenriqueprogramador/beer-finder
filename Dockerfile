@@ -10,6 +10,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=America/Sao_Paulo
 WORKDIR /var/www/html
 
+# -----------------------------
+# Instala dependências básicas
+# -----------------------------
 RUN apt-get update && apt-get install -y \
     software-properties-common \
     curl \
@@ -21,6 +24,9 @@ RUN apt-get update && apt-get install -y \
     nginx \
     tzdata
 
+# -----------------------------
+# Instala PHP e extensões
+# -----------------------------
 RUN add-apt-repository ppa:ondrej/php -y && \
     apt-get update && apt-get install -y \
     php8.2 \
@@ -35,9 +41,15 @@ RUN add-apt-repository ppa:ondrej/php -y && \
     php8.2-gd \
     php8.2-intl
 
+# -----------------------------
+# Instala Node.js
+# -----------------------------
 RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - && \
     apt-get install -y nodejs
 
+# -----------------------------
+# Instala Composer
+# -----------------------------
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
 # -----------------------------
@@ -50,18 +62,33 @@ RUN if ! getent group ${WWWUSER} >/dev/null; then \
         useradd -ms /bin/bash -g ${WWWUSER} -u ${WWWGROUP} ${WWWUSER}; \
     fi
 
+# -----------------------------
+# Remove default Nginx
+# -----------------------------
 RUN rm -f /etc/nginx/sites-enabled/default
 
+# -----------------------------
+# Define diretório de trabalho
+# -----------------------------
 WORKDIR /var/www/html
 
+# -----------------------------
+# Copia configurações e código
+# -----------------------------
 COPY ./nginx/default.conf /etc/nginx/sites-enabled/default.conf
 COPY ./supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY . /var/www/html
 
+# -----------------------------
+# Instala dependências do Laravel e Node
+# -----------------------------
 RUN composer install --no-interaction --prefer-dist && \
     npm install && \
     npm run build || true && \
     chown -R ${WWWUSER}:${WWWUSER} /var/www/html
 
+# -----------------------------
+# Expõe porta e inicia Supervisor
+# -----------------------------
 EXPOSE 80
 CMD ["/usr/bin/supervisord", "-n"]
