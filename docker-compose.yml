@@ -5,25 +5,19 @@ services:
     container_name: laravel_app
     volumes:
       - .:/var/www/html
+    env_file:
+      - .env
     ports:
       - "8080:80"
     depends_on:
       - db
-    environment:
-      DB_HOST: db
-      DB_DATABASE: laravel
-      DB_USERNAME: root
-      DB_PASSWORD: toor
 
   db:
     image: mysql:8
     container_name: mysql_db
     restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: toor
-      MYSQL_DATABASE: laravel
-      MYSQL_USER: root
-      MYSQL_PASSWORD: toor
+    env_file:
+      - .env
     ports:
       - "3306:3306"
     volumes:
@@ -36,7 +30,8 @@ services:
       - "8081:80"
     environment:
       PMA_HOST: db
-      MYSQL_ROOT_PASSWORD: toor
+      PMA_USER: ${DB_USERNAME}
+      PMA_PASSWORD: ${DB_PASSWORD}
 
 volumes:
   db_data:
