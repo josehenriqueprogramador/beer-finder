@@ -1,4 +1,3 @@
-# =============================
 # 📦 Dockerfile Laravel Completo (Ubuntu 24.04)
 # =============================
 FROM ubuntu:24.04
@@ -36,13 +35,20 @@ RUN add-apt-repository ppa:ondrej/php -y && \
     php8.2-gd \
     php8.2-intl
 
-RUN curl -fsSL https://deb.nodesource.com/setup_\${NODE_VERSION}.x | bash - && \
+RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - && \
     apt-get install -y nodejs
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
-RUN if ! getent group \${WWWGROUP}; then groupadd -g \${WWWGROUP} \${WWWUSER}; fi && \
-    if ! id -u \${WWWUSER} >/dev/null 2>&1; then useradd -ms /bin/bash -u \${WWWGROUP} -g \${WWWUSER} \${WWWUSER}; fi
+# -----------------------------
+# Cria usuário e grupo de forma segura
+# -----------------------------
+RUN if ! getent group ${WWWUSER} >/dev/null; then \
+        groupadd -g ${WWWGROUP} ${WWWUSER}; \
+    fi && \
+    if ! id -u ${WWWUSER} >/dev/null 2>&1; then \
+        useradd -ms /bin/bash -g ${WWWUSER} -u ${WWWGROUP} ${WWWUSER}; \
+    fi
 
 RUN rm -f /etc/nginx/sites-enabled/default
 
@@ -55,7 +61,7 @@ COPY . /var/www/html
 RUN composer install --no-interaction --prefer-dist && \
     npm install && \
     npm run build || true && \
-    chown -R \${WWWUSER}:\${WWWUSER} /var/www/html
+    chown -R ${WWWUSER}:${WWWUSER} /var/www/html
 
 EXPOSE 80
 CMD ["/usr/bin/supervisord", "-n"]
