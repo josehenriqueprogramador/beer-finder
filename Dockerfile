@@ -25,21 +25,22 @@ RUN apt-get update && apt-get install -y \
     tzdata
 
 # -----------------------------
-# Instala PHP e extensões
+# Instala PHP 8.4 e extensões
 # -----------------------------
 RUN add-apt-repository ppa:ondrej/php -y && \
     apt-get update && apt-get install -y \
-    php8.2 \
-    php8.2-cli \
-    php8.2-fpm \
-    php8.2-mbstring \
-    php8.2-xml \
-    php8.2-bcmath \
-    php8.2-curl \
-    php8.2-zip \
-    php8.2-mysql \
-    php8.2-gd \
-    php8.2-intl
+    php8.4 \
+    php8.4-cli \
+    php8.4-fpm \
+    php8.4-mbstring \
+    php8.4-xml \
+    php8.4-bcmath \
+    php8.4-curl \
+    php8.4-zip \
+    php8.4-mysql \
+    php8.4-pgsql \
+    php8.4-gd \
+    php8.4-intl
 
 # -----------------------------
 # Instala Node.js
@@ -82,7 +83,7 @@ COPY . /var/www/html
 # -----------------------------
 # Instala dependências do Laravel e Node
 # -----------------------------
-RUN composer install --no-interaction --prefer-dist && \
+RUN composer install --ignore-platform-reqs --no-interaction --prefer-dist && \
     npm install && \
     npm run build || true && \
     chown -R ${WWWUSER}:${WWWUSER} /var/www/html
