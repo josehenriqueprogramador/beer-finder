@@ -1,0 +1,41 @@
+version: '3.9'
+
+services:
+  db:
+    image: ankane/pgvector:latest
+    container_name: beerfinder_postgres
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: toor
+      POSTGRES_DB: beerfinder
+    ports:
+      - "5432:5432"
+    volumes:
+      - PostgreData:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: beerfinder_app
+    volumes:
+      - ./:/var/www/html
+    ports:
+      - "8080:80"
+    environment:
+      APP_NAME: "BeerFinder"
+      APP_ENV: local
+      APP_KEY: base64:SomeRandomKeyHere=
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8080
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: beerfinder
+      DB_USERNAME: root
+      DB_PASSWORD: toor
+      WWWUSER: 1000
+      WWWGROUP: 1000
+    depends_on:
+      - db
+
+volumes:
+  PostgreData:
