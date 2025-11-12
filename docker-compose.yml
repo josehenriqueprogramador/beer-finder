@@ -11,19 +11,21 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - PostgreData:/var/lib/postgresql/data
+      - ./data/postgres:/var/lib/postgresql/data  # 🔒 persistência local do banco
 
   app:
     build: .
     container_name: beerfinder_app
     volumes:
-      - ./:/var/www/html
+      - ./:/var/www/html                          # 🧠 mantém seu código Laravel sincronizado
+      - ./storage:/var/www/html/storage           # 🗂️ garante que uploads e logs fiquem salvos
+      - ./vendor:/var/www/html/vendor             # 📦 mantém dependências PHP persistentes
     ports:
       - "8080:80"
     environment:
       APP_NAME: "BeerFinder"
       APP_ENV: local
-      APP_KEY: base64:SomeRandomKeyHere=
+      APP_KEY: ${APP_KEY}                         # 🔐 agora usa o .env, se existir
       APP_DEBUG: "true"
       APP_URL: http://localhost:8080
       DB_CONNECTION: pgsql
@@ -36,6 +38,9 @@ services:
       WWWGROUP: 1000
     depends_on:
       - db
+    command: >
+      sh -c "php artisan migrate --force &&
+             php artisan serve --host=0.0.0.0 --port=80"
 
 volumes:
   PostgreData:
